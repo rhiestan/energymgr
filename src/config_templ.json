@@ -1,0 +1,15 @@
+{
+	"mqtt_uri": "192.168.1.2",
+	"mqtt_port": 1883,
+	"mqtt_topicHP": "abc",
+	"mqtt_topicEnergy": "bcd",
+	"dbFilename": "values.db",
+	"curlFullPath": "C:\\Windows\\System32\\curl.exe",
+	"openHAB_URL": "http://192.168.1.2:8080",
+	"openHAB_Token": "oh.TokenForAPI.abc",
+	"openHAB_virtualPositiveSwitch": "abc",
+	"influxDB_URL": "http://192.168.1.2:8086",
+	"influxDB_UserPW": "admin:abc",
+	"influxDB_DBName": "openhab_db",
+	"froniusURL": "http://192.168.1.5/solar_api/v1/GetInverterRealtimeData.cgi?Scope=System"
+}

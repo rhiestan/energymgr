@@ -1,0 +1,34 @@
+#include <QString>
+
+#include "CommandRunner.h"
+
+void CommandRunner::runCommand(const QStringList &command)
+{
+   ProcessData *pProcessData = new ProcessData(this);
+   pProcessData->pProcess = new QProcess(pProcessData);
+
+   // Connect the signals to capture stdout and stderr
+   connect(pProcessData->pProcess, &QProcess::readyReadStandardOutput, this, [pProcessData]() {
+      pProcessData->output.append(pProcessData->pProcess->readAllStandardOutput());
+      });
+   connect(pProcessData->pProcess, &QProcess::readyReadStandardError, this, [pProcessData]() {
+      pProcessData->errorOutput.append(pProcessData->pProcess->readAllStandardError());
+      });
+
+   // Connect the finished signal to handle what happens when the command completes
+   connect(pProcessData->pProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this, pProcessData](int exitCode, QProcess::ExitStatus status)
+      {
+         commandFinished(exitCode, status, pProcessData->output, pProcessData->errorOutput);
+
+         pProcessData->deleteLater();
+      });
+
+   // Start the process with the given command
+   QStringList args = command;
+   QString program = args.takeFirst();
+   pProcessData->pProcess->start(program, args);
+}
+
+void CommandRunner::commandFinished(int, QProcess::ExitStatus status, const QString &stdoutStr, const QString &stderrStr)
+{
+}
