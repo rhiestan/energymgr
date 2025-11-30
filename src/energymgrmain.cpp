@@ -94,24 +94,9 @@ int main(int argc, char **argv)
       QObject::connect(&mqReader, &MQReader::newEnergyValues, &energyMgr, &EnergyManager::onEnergyValues, Qt::ConnectionType::QueuedConnection);
       QObject::connect(&mqReader, &MQReader::newHeatPumpPower, &energyMgr, &EnergyManager::onHeatPumpPower, Qt::ConnectionType::QueuedConnection);
 
-      ReadInfluxDBHistoryValue rdInfluxDBHistoryValue;
-      rdInfluxDBHistoryValue.runCommand(config, QStringLiteral("http_einfachSolar2_workOut"));
-      QObject::connect(&rdInfluxDBHistoryValue, &ReadInfluxDBHistoryValue::valueFromInfluxDBHistory, &app, [](const QString &valueName, double value) 
-         {
-            qDebug() << "Influx DB max value: " << valueName << " = " << value;
-         });
-
-
       FroniusReader froniusReader;
       froniusReader.runCommand(config);
-
-      /*QObject::connect(&froniusReader, &FroniusReader::newFroniusPACValue, &app, [](double newPACValue)
-         {
-            qDebug() << "Fronius PAC: " << newPACValue;
-
-         }, Qt::ConnectionType::QueuedConnection);*/
       QObject::connect(&froniusReader, &FroniusReader::newFroniusPACValue, &energyMgr, &EnergyManager::onFroniusPACValue, Qt::ConnectionType::QueuedConnection);
-
 
       OpenHABSystemStatusReader openHABSystemStatusReader;
       openHABSystemStatusReader.runCommand(config);
@@ -120,7 +105,7 @@ int main(int argc, char **argv)
             qDebug() << "OpenHAB uptime: " << uptime << ", runlevel: " << runLevel;
          }, Qt::ConnectionType::QueuedConnection);
 
-      QTimer tmr1, timerFronius;
+      QTimer tmr1, timerFronius, timerStoreValuesDB, timerSendValuesToOpenHAB;
       QObject::connect(&tmr1, &QTimer::timeout, &app, [&app, &openHABSystemStatusReader, &sendValueToOpenHAB, &config]()
          {
             static int counter{0};
@@ -129,13 +114,15 @@ int main(int argc, char **argv)
 
             sendValueToOpenHAB.runCommand(config, QStringLiteral("virtualPositiveSwitch"), QStringLiteral("false"));
 
-            qDebug() << "tmr1";
             counter++;
 
-            if(counter >= 5)
+            if(counter >= 50)
                app.quit();
          });
       tmr1.start(1000);
+
+      QObject::connect(&timerStoreValuesDB, &QTimer::timeout, &energyMgr, &EnergyManager::onStoreEnergyValuesInDB);
+      timerStoreValuesDB.start(1000);
 
       QObject::connect(&timerFronius, &QTimer::timeout, &app, [&froniusReader, &config]()
          {
@@ -143,7 +130,8 @@ int main(int argc, char **argv)
          });
       timerFronius.start(1000);
 
-      // QTimer::singleShot(0, &d, SLOT(doDownload()));
+      QObject::connect(&timerSendValuesToOpenHAB, &QTimer::timeout, &energyMgr, &EnergyManager::onWriteValuesToOpenHAB);
+      timerSendValuesToOpenHAB.start(10000);
 
       return app.exec();
    }

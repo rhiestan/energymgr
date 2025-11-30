@@ -16,7 +16,7 @@ public:
 
    void runCommand(const Config &config);
 
-   virtual void commandFinished(int, QProcess::ExitStatus status, const QString &stdoutStr, const QString &stderrStr);
+   virtual void commandFinished(int, QProcess::ExitStatus status, const QString &stdoutStr, const QString &stderrStr, const QString &payloadToFinished) override;
 
 signals:
    void newFroniusDayEnergyValue(double value);

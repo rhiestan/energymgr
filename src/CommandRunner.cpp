@@ -2,7 +2,7 @@
 
 #include "CommandRunner.h"
 
-void CommandRunner::runCommand(const QStringList &command)
+void CommandRunner::runCommand(const QStringList &command, const QString &payloadToFinished)
 {
    ProcessData *pProcessData = new ProcessData(this);
    pProcessData->pProcess = new QProcess(pProcessData);
@@ -16,9 +16,9 @@ void CommandRunner::runCommand(const QStringList &command)
       });
 
    // Connect the finished signal to handle what happens when the command completes
-   connect(pProcessData->pProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this, pProcessData](int exitCode, QProcess::ExitStatus status)
+   connect(pProcessData->pProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this, pProcessData, &payloadToFinished](int exitCode, QProcess::ExitStatus status)
       {
-         commandFinished(exitCode, status, pProcessData->output, pProcessData->errorOutput);
+         commandFinished(exitCode, status, pProcessData->output, pProcessData->errorOutput, payloadToFinished);
 
          pProcessData->deleteLater();
       });
@@ -29,6 +29,6 @@ void CommandRunner::runCommand(const QStringList &command)
    pProcessData->pProcess->start(program, args);
 }
 
-void CommandRunner::commandFinished(int, QProcess::ExitStatus status, const QString &stdoutStr, const QString &stderrStr)
+void CommandRunner::commandFinished(int, QProcess::ExitStatus status, const QString &stdoutStr, const QString &stderrStr, const QString &payloadToFinished)
 {
 }

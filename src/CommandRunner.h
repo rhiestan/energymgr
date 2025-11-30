@@ -29,9 +29,9 @@ class CommandRunner : public QObject {
 public:
    explicit CommandRunner(QObject *parent = nullptr) : QObject(parent) {}
 
-   void runCommand(const QStringList &command);
+   void runCommand(const QStringList &command, const QString &payloadToFinished = QStringLiteral(""));
 
-   virtual void commandFinished(int, QProcess::ExitStatus status, const QString &stdoutStr, const QString &stderrStr);
+   virtual void commandFinished(int, QProcess::ExitStatus status, const QString &stdoutStr, const QString &stderrStr, const QString &payloadToFinished);
 
 private:
 };

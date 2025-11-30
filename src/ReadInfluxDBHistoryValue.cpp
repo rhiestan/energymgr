@@ -36,7 +36,7 @@ void ReadInfluxDBHistoryValue::runCommand(const Config &config, const QString &v
    CommandRunner::runCommand(command);
 }
 
-void ReadInfluxDBHistoryValue::commandFinished(int, QProcess::ExitStatus status, const QString &stdoutStr, const QString &stderrStr)
+void ReadInfluxDBHistoryValue::commandFinished(int, QProcess::ExitStatus status, const QString &stdoutStr, const QString &stderrStr, const QString &payloadToFinished)
 {
    if (status == QProcess::NormalExit)
    {

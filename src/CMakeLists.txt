@@ -33,7 +33,17 @@ qt_add_executable(energymgr
 	EnergyValue.h
 	SendValueToOpenHAB.cpp
 	SendValueToOpenHAB.h
+	OpenHABValueReader.cpp
+	OpenHABValueReader.h
 )
 target_link_libraries(energymgr PRIVATE
 	Qt6::Core Qt6::Concurrent Qt6::Network Qt6::Mqtt Qt6::Sql
+)
+
+target_precompile_headers(energymgr
+  PRIVATE
+    <QObject>
+	<QString>
+	<QFile>
+	<filesystem>
 )

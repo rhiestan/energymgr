@@ -29,7 +29,7 @@ void FroniusReader::runCommand(const Config &config)
    CommandRunner::runCommand(command);
 }
 
-void FroniusReader::commandFinished(int, QProcess::ExitStatus status, const QString &stdoutStr, const QString &stderrStr)
+void FroniusReader::commandFinished(int, QProcess::ExitStatus status, const QString &stdoutStr, const QString &stderrStr, const QString &payloadToFinished)
 {
    if (status == QProcess::NormalExit) {
 

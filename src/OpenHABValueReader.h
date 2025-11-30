@@ -1,3 +1,6 @@
+#ifndef OPENHAB_VALUE_READER_H
+#define OPENHAB_VALUE_READER_H
+
 #include <QString>
 #include <QProcess>
 #include <QByteArray>
@@ -8,18 +11,20 @@
 
 class Config;
 
-class ReadInfluxDBHistoryValue : public CommandRunner
+class OpenHABValueReader : public CommandRunner
 {
    Q_OBJECT
 public:
-   explicit ReadInfluxDBHistoryValue(QObject *parent = nullptr) : CommandRunner(parent) {}
+   explicit OpenHABValueReader(QObject *parent = nullptr) : CommandRunner(parent) {}
 
    void runCommand(const Config &config, const QString &valueName);
 
    void commandFinished(int, QProcess::ExitStatus status, const QString &stdoutStr, const QString &stderrStr, const QString &payloadToFinished) override;
 
 signals:
-   void valueFromInfluxDBHistory(const QString &valueName, double value);
+   void valueRead(const QString &valueName, double value);
 
 private:
 };
+
+#endif // !OPENHAB_VALUE_READER_H

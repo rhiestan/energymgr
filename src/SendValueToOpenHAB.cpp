@@ -30,10 +30,10 @@ void SendValueToOpenHAB::runCommand(const Config &config, const QString &valueNa
       QStringLiteral("Authorization: Bearer ") + config.getOpenHABToken() + QStringLiteral(""),
       openHABUrl.toString() };
 
-   CommandRunner::runCommand(command);
+   CommandRunner::runCommand(command, valueName);
 }
 
-void SendValueToOpenHAB::commandFinished(int, QProcess::ExitStatus status, const QString &stdoutStr, const QString &stderrStr)
+void SendValueToOpenHAB::commandFinished(int, QProcess::ExitStatus status, const QString &stdoutStr, const QString &stderrStr, const QString &payloadToFinished)
 {
    if (status != QProcess::NormalExit)
    {

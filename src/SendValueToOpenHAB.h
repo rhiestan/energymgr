@@ -19,7 +19,7 @@ public:
 
    void runCommand(const Config &config, const QString &valueName, const QString &valueStr);
 
-   virtual void commandFinished(int, QProcess::ExitStatus status, const QString &stdoutStr, const QString &stderrStr);
+   void commandFinished(int, QProcess::ExitStatus status, const QString &stdoutStr, const QString &stderrStr, const QString &payloadToFinished) override;
 
 private:
 };

@@ -19,7 +19,7 @@ public:
 
    void runCommand(const Config &config);
 
-   virtual void commandFinished(int, QProcess::ExitStatus status, const QString &stdoutStr, const QString &stderrStr);
+   void commandFinished(int, QProcess::ExitStatus status, const QString &stdoutStr, const QString &stderrStr, const QString &payloadToFinished) override;
 
 signals:
    void newOpenHABSystemStatus(qint64 uptime, qint64 runLevel);
