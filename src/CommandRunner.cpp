@@ -16,7 +16,7 @@ void CommandRunner::runCommand(const QStringList &command, const QString &payloa
       });
 
    // Connect the finished signal to handle what happens when the command completes
-   connect(pProcessData->pProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this, pProcessData, &payloadToFinished](int exitCode, QProcess::ExitStatus status)
+   connect(pProcessData->pProcess, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished), this, [this, pProcessData, payloadToFinished](int exitCode, QProcess::ExitStatus status)
       {
          commandFinished(exitCode, status, pProcessData->output, pProcessData->errorOutput, payloadToFinished);
 

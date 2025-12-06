@@ -130,7 +130,10 @@ int main(int argc, char **argv)
          });
       timerFronius.start(1000);
 
-      QObject::connect(&timerSendValuesToOpenHAB, &QTimer::timeout, &energyMgr, &EnergyManager::onWriteValuesToOpenHAB);
+      QObject::connect(&timerSendValuesToOpenHAB, &QTimer::timeout, &energyMgr, [&energyMgr, &sendValueToOpenHAB]()
+         {
+            energyMgr.writeValuesToOpenHAB(sendValueToOpenHAB);
+         });
       timerSendValuesToOpenHAB.start(10000);
 
       return app.exec();

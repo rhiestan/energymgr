@@ -33,7 +33,7 @@ void ReadInfluxDBHistoryValue::runCommand(const Config &config, const QString &v
       QStringLiteral("q=SELECT MAX(\"value\") FROM \"") + valueName + QStringLiteral("\" WHERE time >= now() - 24h")
     };
 
-   CommandRunner::runCommand(command);
+   CommandRunner::runCommand(command, valueName);
 }
 
 void ReadInfluxDBHistoryValue::commandFinished(int, QProcess::ExitStatus status, const QString &stdoutStr, const QString &stderrStr, const QString &payloadToFinished)
@@ -106,6 +106,9 @@ void ReadInfluxDBHistoryValue::commandFinished(int, QProcess::ExitStatus status,
                      if(columnValueMap.contains(QStringLiteral("max")))
                      {
                         double value = columnValueMap[QStringLiteral("max")].toDouble();
+
+                        qDebug() << valueName << ", " << payloadToFinished << ": " << value;
+
                         emit valueFromInfluxDBHistory(valueName, value);
                      }
                   }

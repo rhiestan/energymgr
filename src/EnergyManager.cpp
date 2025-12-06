@@ -5,7 +5,7 @@
 #include "SendValueToOpenHAB.h"
 
 #include <QDebug>
-#include <QEVentLoop>
+#include <QEventLoop>
 
 void EnergyManager::initializeValues(const Config &config)
 {
@@ -226,9 +226,8 @@ void EnergyManager::onStoreEnergyValuesInDB()
    instance.storeValue(QStringLiteral("WP_workIn"), valWP_workIn.getValue());
 }
 
-void EnergyManager::onWriteValuesToOpenHAB()
+void EnergyManager::writeValuesToOpenHAB(SendValueToOpenHAB &sendValueToOpenHAB)
 {
-   SendValueToOpenHAB sendValueToOpenHAB;
    sendValueToOpenHAB.runCommand(configCopy_, QStringLiteral("http_einfachSolar2_WorkConsumedFromGrid_cmp"), QString::fromUtf8(valWorkConsumedFromGrid.getValueStr()));
    sendValueToOpenHAB.runCommand(configCopy_, QStringLiteral("http_einfachSolar2_workOut_cmp"), QString::fromUtf8(valWorkConsumedFromGrid.getValueStr()));
 }

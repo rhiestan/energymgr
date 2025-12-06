@@ -9,6 +9,8 @@ class Config;
 #include <QObject>
 #include <chrono>
 
+class SendValueToOpenHAB;
+
 class EnergyManager : public QObject
 {
    Q_OBJECT
@@ -17,17 +19,16 @@ public:
 
    void initializeValues(const Config &config);
 
+   void writeValuesToOpenHAB(SendValueToOpenHAB &sendValueToOpenHAB);
+
 signals:
    void sendPositiveSwitchToOH(bool positiveSwitch);
-
-   //void newOpenHABSystemStatus(qint64 uptime, qint64 runLevel);
 
 public slots:
    void onFroniusPACValue(double val);
    void onEnergyValues(double total_power, double phase1, double phase2, double phase3, double energyPos, double energyNeg);
    void onHeatPumpPower(double hpPower);
    void onStoreEnergyValuesInDB();
-   void onWriteValuesToOpenHAB();
 
 private:
    EnergyValue valPowerIn, valPowerOut, valPowerProduced, valPowerConsumed;
