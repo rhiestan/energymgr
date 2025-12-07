@@ -197,7 +197,8 @@ void EnergyManager::onEnergyValues(double total_power, double phase1, double pha
 
    // EnergyValue valWorkSelfConsumed;
    // Work self consumed: Total energy consumed by the load that originates onsite, either consumed instantly from production or consumed later after being buffered in storage from producers, during Δt.
-   valWorkConsumedFromProducers.incrementValue(timeDiff * valPowerConsumedFromProducers.getValue() / 3600.0);  // Plus battery out, if available
+   if(timeDiff < 2.0)
+      valWorkSelfConsumed.incrementValue(timeDiff * valPowerConsumedFromProducers.getValue() / 3600.0);  // Plus battery out, if available
 }
 
 void EnergyManager::onHeatPumpPower(double hpPower)
@@ -229,5 +230,12 @@ void EnergyManager::onStoreEnergyValuesInDB()
 void EnergyManager::writeValuesToOpenHAB(SendValueToOpenHAB &sendValueToOpenHAB)
 {
    sendValueToOpenHAB.runCommand(configCopy_, QStringLiteral("http_einfachSolar2_WorkConsumedFromGrid_cmp"), QString::fromUtf8(valWorkConsumedFromGrid.getValueStr()));
-   sendValueToOpenHAB.runCommand(configCopy_, QStringLiteral("http_einfachSolar2_workOut_cmp"), QString::fromUtf8(valWorkConsumedFromGrid.getValueStr()));
+   sendValueToOpenHAB.runCommand(configCopy_, QStringLiteral("http_einfachSolar2_workOut_cmp"), QString::fromUtf8(valWorkOut.getValueStr()));
+   sendValueToOpenHAB.runCommand(configCopy_, QStringLiteral("http_einfachSolar2_powerIn_cmp"), QString::fromUtf8(valPowerIn.getValueStr()));
+   sendValueToOpenHAB.runCommand(configCopy_, QStringLiteral("http_einfachSolar2_powerOut_cmp"), QString::fromUtf8(valPowerOut.getValueStr()));
+   sendValueToOpenHAB.runCommand(configCopy_, QStringLiteral("http_einfachSolar2_workIn_cmp"), QString::fromUtf8(valWorkIn.getValueStr()));
+   //sendValueToOpenHAB.runCommand(configCopy_, QStringLiteral("http_einfachSolar2_WorkConsumedFromProducers_cmp"), QString::fromUtf8(valPowerConsumedFromProducers.getValueStr()));
+   sendValueToOpenHAB.runCommand(configCopy_, QStringLiteral("http_einfachSolar2_WorkProduced_cmp"), QString::fromUtf8(valWorkProduced.getValueStr()));
+   sendValueToOpenHAB.runCommand(configCopy_, QStringLiteral("http_einfachSolar2_WorkConsumedFromProducers_cmp"), QString::fromUtf8(valWorkConsumedFromProducers.getValueStr()));
+   sendValueToOpenHAB.runCommand(configCopy_, QStringLiteral("http_einfachSolar2_WP_workIn_cmp"), QString::fromUtf8(valWP_workIn.getValueStr()));
 }
