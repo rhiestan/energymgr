@@ -116,8 +116,8 @@ int main(int argc, char **argv)
 
             counter++;
 
-            if(counter >= 50)
-               app.quit();
+            //if(counter >= 50)
+            //   app.quit();
          });
       tmr1.start(1000);
 
