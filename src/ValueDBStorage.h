@@ -2,6 +2,9 @@
 #define VALUE_DB_STORAGE_H
 
 #include <QString>
+#include <QList>
+
+#include <tuple>
 
 /**
  * Stores values in a SQLite DB.
@@ -13,6 +16,7 @@ public:
    void openDatabase(const QString &dbFilename);
    void storeValue(const QString &valueName, double value);
    bool readValue(const QString &valueName, double &value);
+   void storeMultipleValues(const QList<std::tuple<QString, double>> &valueList);
 
    static ValueDBStorage &getInstance() { return instance_; }
 

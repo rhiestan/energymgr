@@ -110,9 +110,9 @@ int main(int argc, char **argv)
          {
             static int counter{0};
 
-            //openHABSystemStatusReader.runCommand(config);
+            openHABSystemStatusReader.runCommand(config);
 
-            sendValueToOpenHAB.runCommand(config, QStringLiteral("virtualPositiveSwitch"), QStringLiteral("false"));
+            //sendValueToOpenHAB.runCommand(config, QStringLiteral("virtualPositiveSwitch"), QStringLiteral("false"));
 
             counter++;
 

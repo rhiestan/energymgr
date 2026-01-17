@@ -188,8 +188,6 @@ void EnergyManager::onEnergyValues(double total_power, double phase1, double pha
    if(timeDiff < 2.0)
       valWorkConsumed.incrementValue(timeDiff * valPowerProduced.getValue() / 3600.0 + energyPos - energyNeg );
 
-   //qDebug() << "WorkConsumed: " << valWorkConsumed.getValueStr();
-
    // Consumed from producers: Portion of the load that is met directly at the instant by onsite production (PV or other producers), not counting storage-mediated delivery.
    timeDiff = valPowerConsumedFromProducers.setValueWithTime( std::min(valPowerConsumed.getValue(), valPowerProduced.getValue() ));
    if(timeDiff < 2.0)
@@ -211,20 +209,24 @@ void EnergyManager::onStoreEnergyValuesInDB()
 {
    ValueDBStorage &instance = ValueDBStorage::getInstance();
 
-   instance.storeValue(QStringLiteral("powerIn"), valPowerIn.getValue());
-   instance.storeValue(QStringLiteral("PowerOut"), valPowerOut.getValue());
-   instance.storeValue(QStringLiteral("PowerProduced"), valPowerProduced.getValue());
-   instance.storeValue(QStringLiteral("PowerConsumed"), valPowerConsumed.getValue());
-   instance.storeValue(QStringLiteral("PowerConsumedFromProducers"), valPowerConsumedFromProducers.getValue());
-   instance.storeValue(QStringLiteral("WorkIn"), valWorkIn.getValue());
-   instance.storeValue(QStringLiteral("WorkOut"), valWorkOut.getValue());
-   instance.storeValue(QStringLiteral("WorkConsumedFromGrid"), valWorkConsumedFromGrid.getValue());
-   instance.storeValue(QStringLiteral("WorkConsumed"), valWorkConsumed.getValue());
-   instance.storeValue(QStringLiteral("WorkProduced"), valWorkProduced.getValue());
-   instance.storeValue(QStringLiteral("WorkConsumedFromProducers"), valWorkConsumedFromProducers.getValue());
-   instance.storeValue(QStringLiteral("WorkSelfConsumed"), valWorkSelfConsumed.getValue());
-   instance.storeValue(QStringLiteral("WP_powerIn"), valWP_powerIn.getValue());
-   instance.storeValue(QStringLiteral("WP_workIn"), valWP_workIn.getValue());
+   QList<std::tuple<QString, double>> valueList
+   {
+      { QStringLiteral("powerIn"), valPowerIn.getValue() },
+      { QStringLiteral("PowerOut"), valPowerOut.getValue() },
+      { QStringLiteral("PowerProduced"), valPowerProduced.getValue() },
+      { QStringLiteral("PowerConsumed"), valPowerConsumed.getValue() },
+      { QStringLiteral("PowerConsumedFromProducers"), valPowerConsumedFromProducers.getValue() },
+      { QStringLiteral("WorkIn"), valWorkIn.getValue() },
+      { QStringLiteral("WorkOut"), valWorkOut.getValue() },
+      { QStringLiteral("WorkConsumedFromGrid"), valWorkConsumedFromGrid.getValue() },
+      { QStringLiteral("WorkConsumed"), valWorkConsumed.getValue() },
+      { QStringLiteral("WorkProduced"), valWorkProduced.getValue() },
+      { QStringLiteral("WorkConsumedFromProducers"), valWorkConsumedFromProducers.getValue() },
+      { QStringLiteral("WorkSelfConsumed"), valWorkSelfConsumed.getValue() },
+      { QStringLiteral("WP_powerIn"), valWP_powerIn.getValue() },
+      { QStringLiteral("WP_workIn"), valWP_workIn.getValue() }
+   };
+   instance.storeMultipleValues(valueList);
 }
 
 void EnergyManager::writeValuesToOpenHAB(SendValueToOpenHAB &sendValueToOpenHAB)
@@ -238,4 +240,8 @@ void EnergyManager::writeValuesToOpenHAB(SendValueToOpenHAB &sendValueToOpenHAB)
    sendValueToOpenHAB.runCommand(configCopy_, QStringLiteral("http_einfachSolar2_WorkProduced_cmp"), QString::fromUtf8(valWorkProduced.getValueStr()));
    sendValueToOpenHAB.runCommand(configCopy_, QStringLiteral("http_einfachSolar2_WorkConsumedFromProducers_cmp"), QString::fromUtf8(valWorkConsumedFromProducers.getValueStr()));
    sendValueToOpenHAB.runCommand(configCopy_, QStringLiteral("http_einfachSolar2_WP_workIn_cmp"), QString::fromUtf8(valWP_workIn.getValueStr()));
+   sendValueToOpenHAB.runCommand(configCopy_, QStringLiteral("http_einfachSolar2_WorkSelfConsumed_cmp"), QString::fromUtf8(valWorkSelfConsumed.getValueStr()));
+   sendValueToOpenHAB.runCommand(configCopy_, QStringLiteral("http_einfachSolar2_WorkConsumed_cmp"), QString::fromUtf8(valWorkConsumed.getValueStr()));
+   sendValueToOpenHAB.runCommand(configCopy_, QStringLiteral("http_einfachSolar2_PowerSelfConsumed_cmp"), QString::fromUtf8(valPowerSelfConsumed.getValueStr()));
+   sendValueToOpenHAB.runCommand(configCopy_, QStringLiteral("http_einfachSolar2_PowerConsumedFromProducers_cmp"), QString::fromUtf8(valPowerConsumedFromProducers.getValueStr()));
 }

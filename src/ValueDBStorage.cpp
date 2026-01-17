@@ -5,6 +5,7 @@
 #include <QSqlDatabase>
 #include <QSqlQuery>
 #include <QSqlError>
+#include <QSet>
 
 ValueDBStorage ValueDBStorage::instance_;
 
@@ -79,6 +80,48 @@ bool ValueDBStorage::readValue(const QString &valueName, double &value)
    return false;
 }
 
+void ValueDBStorage::storeMultipleValues(const QList<std::tuple<QString, double>> &valueList)
+{
+   if(!isOpen_)
+      throw std::runtime_error("Database is not open");
+
+   QSqlDatabase db = QSqlDatabase::database(QStringLiteral("ValueDB"));
+
+   QSet<QString> existingNames;
+   {
+      QSqlQuery query(db);
+      query.prepare("SELECT name FROM ValueDB");
+      if(!query.exec())
+         throw std::runtime_error(std::string("Database query failed: ") + std::string(db.lastError().text().toUtf8()));
+      while(query.next())
+      {
+         QString name = query.value(0).toString();
+         existingNames.insert(name);
+      }
+   }
+
+   bool isOk = db.transaction();
+   if(!isOk)
+      throw std::runtime_error("Transaction creation failed");
+
+   for(const auto &nameValuePair : valueList)
+   {
+      const QString &valueName = std::get<0>(nameValuePair);
+      const double value = std::get<1>(nameValuePair);
+
+      QSqlQuery query(db);
+      if(existingNames.contains(valueName))
+         query.prepare("UPDATE ValueDB SET value=:value WHERE name=:name");
+      else
+         query.prepare("INSERT INTO ValueDB (name, value) VALUES (:name, :value)");
+      query.bindValue(":name", valueName);
+      query.bindValue(":value", value);
+      isOk = query.exec();
+      if(!isOk)
+         throw std::runtime_error(std::string("Could not execute query: ") + std::string(query.lastError().text().toUtf8()));
+   }
+   db.commit();
+}
 
 ValueDBStorage::ValueDBStorage()
 {
