@@ -71,6 +71,10 @@ int main(int argc, char **argv)
 
 
       ValueDBStorage::getInstance().openDatabase(config.getDBFileName());
+      ValueDBStorage::getInstance().setErrorCallback([](const QString &errorMessage)
+         {
+            qCritical() << "Database error: " << errorMessage;
+         });
 
       EnergyManager energyMgr;
       energyMgr.initializeValues(config);
@@ -148,4 +152,6 @@ int main(int argc, char **argv)
    {
       std::cerr << "energymgr: Unknown exception" << std::endl;
    }
+
+   ValueDBStorage::getInstance().shutdown();
 }

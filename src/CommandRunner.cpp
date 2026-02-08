@@ -1,4 +1,5 @@
 #include <QString>
+#include <QDebug>
 
 #include "CommandRunner.h"
 
@@ -29,6 +30,11 @@ void CommandRunner::runCommand(const QStringList &command, const QString &payloa
    pProcessData->pProcess->start(program, args);
 }
 
-void CommandRunner::commandFinished(int, QProcess::ExitStatus status, const QString &stdoutStr, const QString &stderrStr, const QString &payloadToFinished)
+void CommandRunner::commandFinished(int exitCode, QProcess::ExitStatus status, const QString &stdoutStr, const QString &stderrStr, const QString &payloadToFinished)
 {
+   if(exitCode != 0)
+   {
+      qCritical() << "CommandRunner: Command finished with non-zero exit code:" << exitCode;
+      qCritical() << "CommandRunner: Standard error output:" << stderrStr;
+   }
 }

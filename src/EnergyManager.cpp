@@ -6,6 +6,8 @@
 
 #include <QDebug>
 #include <QEventLoop>
+#include <QtConcurrentRun>
+
 
 void EnergyManager::initializeValues(const Config &config)
 {
@@ -42,6 +44,7 @@ void EnergyManager::initializeValues(const Config &config)
       valWP_powerIn.setValue(val);
    if(instance.readValue(QStringLiteral("WP_workIn"), val))
       valWP_workIn.setValue(val);
+
 
    // Get accumulated values from OpenHAB, use the higher value
    int outstandingResults = 2*8;
@@ -193,8 +196,8 @@ void EnergyManager::onEnergyValues(double total_power, double phase1, double pha
    if(timeDiff < 2.0)
       valWorkConsumedFromProducers.incrementValue(timeDiff * valPowerConsumedFromProducers.getValue() / 3600.0);
 
-   // EnergyValue valWorkSelfConsumed;
    // Work self consumed: Total energy consumed by the load that originates onsite, either consumed instantly from production or consumed later after being buffered in storage from producers, during Δt.
+   timeDiff = valPowerSelfConsumed.setValueWithTime( std::min(valPowerConsumed.getValue(), valPowerProduced.getValue() ));
    if(timeDiff < 2.0)
       valWorkSelfConsumed.incrementValue(timeDiff * valPowerConsumedFromProducers.getValue() / 3600.0);  // Plus battery out, if available
 }
@@ -207,8 +210,6 @@ void EnergyManager::onHeatPumpPower(double hpPower)
 
 void EnergyManager::onStoreEnergyValuesInDB()
 {
-   ValueDBStorage &instance = ValueDBStorage::getInstance();
-
    QList<std::tuple<QString, double>> valueList
    {
       { QStringLiteral("powerIn"), valPowerIn.getValue() },
@@ -226,7 +227,11 @@ void EnergyManager::onStoreEnergyValuesInDB()
       { QStringLiteral("WP_powerIn"), valWP_powerIn.getValue() },
       { QStringLiteral("WP_workIn"), valWP_workIn.getValue() }
    };
-   instance.storeMultipleValues(valueList);
+
+   {
+      ValueDBStorage &instance = ValueDBStorage::getInstance();
+      instance.storeMultipleValues(valueList);
+   }
 }
 
 void EnergyManager::writeValuesToOpenHAB(SendValueToOpenHAB &sendValueToOpenHAB)
