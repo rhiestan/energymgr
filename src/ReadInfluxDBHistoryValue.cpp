@@ -30,7 +30,7 @@ void ReadInfluxDBHistoryValue::runCommand(const Config &config, const QString &v
       QStringLiteral("--data-urlencode"),
       QStringLiteral("db=") + config.getInfluxDBDBName(),
       QStringLiteral("--data-urlencode"),
-      QStringLiteral("q=SELECT MAX(\"value\") FROM \"") + valueName + QStringLiteral("\" WHERE time >= now() - 24h")
+      QStringLiteral("q=SELECT MAX(\"value\") FROM \"") + valueName + QStringLiteral("\" WHERE time >= now() - 240h")
     };
 
    CommandRunner::runCommand(command, valueName);

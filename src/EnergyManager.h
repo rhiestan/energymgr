@@ -32,11 +32,11 @@ public slots:
 
 private:
    EnergyValue valPowerIn, valPowerOut, valPowerProduced, valPowerConsumed;
-   EnergyValue valPowerConsumedFromProducers, valPowerSelfConsumed;
+   EnergyValue valPowerConsumedFromProducers, valPowerSelfConsumed, valPowerSelfSupplied;
    EnergyValue valWorkIn, valWorkOut;
    EnergyValue valWorkConsumedFromGrid, valWorkConsumed;
    EnergyValue valWorkProduced, valWorkConsumedFromProducers;
-   EnergyValue valWorkSelfConsumed;
+   EnergyValue valWorkSelfConsumed, valWorkSelfSupplied;
    EnergyValue valWP_powerIn;
    EnergyValue valWP_workIn;
 

@@ -44,6 +44,8 @@ void EnergyManager::initializeValues(const Config &config)
       valWP_powerIn.setValue(val);
    if(instance.readValue(QStringLiteral("WP_workIn"), val))
       valWP_workIn.setValue(val);
+   if(instance.readValue(QStringLiteral("WorkSelfSupplied"), val))
+      valWorkSelfSupplied.setValue(val);
 
 
    // Get accumulated values from OpenHAB, use the higher value
@@ -95,6 +97,11 @@ void EnergyManager::initializeValues(const Config &config)
          if(valWorkConsumedFromProducers.getValue() < value)
             valWorkConsumedFromProducers.setValue(value);
       }
+      if(valueName == QStringLiteral("http_einfachSolar2_WorkSelfSupplied"))
+      {
+         if(valWorkSelfSupplied.getValue() < value)
+            valWorkSelfSupplied.setValue(value);
+      }
    };
 
    QObject::connect(&rdOpenHABValue, &OpenHABValueReader::valueRead, this, readValueFromOHOrInflux);
@@ -114,6 +121,7 @@ void EnergyManager::initializeValues(const Config &config)
    rdOpenHABValue.runCommand(config, QStringLiteral("http_einfachSolar2_WorkSelfConsumed"));
    rdOpenHABValue.runCommand(config, QStringLiteral("http_einfachSolar2_WorkConsumedFromGrid"));
    rdOpenHABValue.runCommand(config, QStringLiteral("http_einfachSolar2_WorkConsumedFromProducers"));
+   rdOpenHABValue.runCommand(config, QStringLiteral("http_einfachSolar2_WorkSelfSupplied"));
 
    rdInfluxDBHistoryValue.runCommand(config, QStringLiteral("http_einfachSolar2_workOut"));
    rdInfluxDBHistoryValue.runCommand(config, QStringLiteral("http_einfachSolar2_workIn"));
@@ -123,6 +131,7 @@ void EnergyManager::initializeValues(const Config &config)
    rdInfluxDBHistoryValue.runCommand(config, QStringLiteral("http_einfachSolar2_WorkSelfConsumed"));
    rdInfluxDBHistoryValue.runCommand(config, QStringLiteral("http_einfachSolar2_WorkConsumedFromGrid"));
    rdInfluxDBHistoryValue.runCommand(config, QStringLiteral("http_einfachSolar2_WorkConsumedFromProducers"));
+   rdInfluxDBHistoryValue.runCommand(config, QStringLiteral("http_einfachSolar2_WorkSelfSupplied"));
 
    bool timeout = false;
    const float timeoutTime = 2.0;  // seconds
@@ -200,6 +209,11 @@ void EnergyManager::onEnergyValues(double total_power, double phase1, double pha
    timeDiff = valPowerSelfConsumed.setValueWithTime( std::min(valPowerConsumed.getValue(), valPowerProduced.getValue() ));
    if(timeDiff < 2.0)
       valWorkSelfConsumed.incrementValue(timeDiff * valPowerConsumedFromProducers.getValue() / 3600.0);  // Plus battery out, if available
+
+   // Work self supplied: Total energy supplied to the load that originates onsite, either supplied instantly from production or supplied later after being buffered in storage from producers, during Δt.
+   timeDiff = valPowerSelfSupplied.setValueWithTime(valPowerConsumedFromProducers.getValue());   // Plus battery out, if available
+   if(timeDiff < 2.0)
+      valWorkSelfSupplied.incrementValue(timeDiff * valPowerSelfSupplied.getValue() / 3600.0);
 }
 
 void EnergyManager::onHeatPumpPower(double hpPower)
@@ -225,7 +239,8 @@ void EnergyManager::onStoreEnergyValuesInDB()
       { QStringLiteral("WorkConsumedFromProducers"), valWorkConsumedFromProducers.getValue() },
       { QStringLiteral("WorkSelfConsumed"), valWorkSelfConsumed.getValue() },
       { QStringLiteral("WP_powerIn"), valWP_powerIn.getValue() },
-      { QStringLiteral("WP_workIn"), valWP_workIn.getValue() }
+      { QStringLiteral("WP_workIn"), valWP_workIn.getValue() },
+      { QStringLiteral("WorkSelfSupplied"), valWorkSelfSupplied.getValue() },
    };
 
    {
@@ -254,6 +269,7 @@ void EnergyManager::writeValuesToOpenHAB(SendValueToOpenHAB &sendValueToOpenHAB)
    sendValueToOpenHAB.runCommand(configCopy_, QStringLiteral("http_einfachSolar2_WorkConsumed") + valuesSuffix, QString::fromUtf8(valWorkConsumed.getValueStr()));
    sendValueToOpenHAB.runCommand(configCopy_, QStringLiteral("http_einfachSolar2_PowerSelfConsumed") + valuesSuffix, QString::fromUtf8(valPowerSelfConsumed.getValueStr()));
    sendValueToOpenHAB.runCommand(configCopy_, QStringLiteral("http_einfachSolar2_PowerConsumedFromProducers") + valuesSuffix, QString::fromUtf8(valPowerConsumedFromProducers.getValueStr()));
+   sendValueToOpenHAB.runCommand(configCopy_, QStringLiteral("http_einfachSolar2_WorkSelfSupplied") + valuesSuffix, QString::fromUtf8(valWorkSelfSupplied.getValueStr()));
 
 #if !defined(SET_CMP_VALUES)
    sendValueToOpenHAB.runCommand(configCopy_, QStringLiteral("powerIn") + valuesSuffix, QString::fromUtf8(valPowerIn.getValueStr()));
