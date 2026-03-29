@@ -219,6 +219,10 @@ void EnergyManager::onEnergyValues(double total_power, double phase1, double pha
 void EnergyManager::onHeatPumpPower(double hpPower)
 {
    valWP_powerIn.setValue(hpPower);
+}
+
+void EnergyManager::onHeatPumpPowerPulse()
+{
    valWP_workIn.incrementValue(1.0);
 }
 

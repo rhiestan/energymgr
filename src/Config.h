@@ -15,6 +15,7 @@ public:
    const QString &getMQTTUri() const { return mqtt_uri_; }
    int getMQTTPort() const { return mqtt_port_; }
    const QString &getMQTTTopicHP() const { return mqtt_topicHP_; }
+   const QString &getMQTTTopicHPPulse() const { return mqtt_topicHPPulse_; }
    const QString &getMQTTTopicEnergy() const { return mqtt_topicEnergy_; }
    const QString &getDBFileName() const { return dbFilename_; }
    const QString &getCurlFullPath() const { return curlFullPath_; }
@@ -31,6 +32,7 @@ private:
    QString mqtt_uri_;
    int mqtt_port_;
    QString mqtt_topicHP_;
+   QString mqtt_topicHPPulse_;
    QString mqtt_topicEnergy_;
    QString dbFilename_;
    QString curlFullPath_;

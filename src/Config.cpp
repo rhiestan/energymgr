@@ -32,6 +32,8 @@ void Config::loadFromFile(const QString &filename)
       mqtt_port_ = mainObject[QStringLiteral("mqtt_port")].toInt();
    if(mainObject.contains(QStringLiteral("mqtt_topicHP")))
       mqtt_topicHP_ = mainObject[QStringLiteral("mqtt_topicHP")].toString();
+   if(mainObject.contains(QStringLiteral("mqtt_topicHPPulse")))
+      mqtt_topicHPPulse_ = mainObject[QStringLiteral("mqtt_topicHPPulse")].toString();
    if(mainObject.contains(QStringLiteral("mqtt_topicEnergy")))
       mqtt_topicEnergy_ = mainObject[QStringLiteral("mqtt_topicEnergy")].toString();
    if(mainObject.contains(QStringLiteral("dbFilename")))

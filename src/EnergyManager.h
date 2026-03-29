@@ -28,6 +28,7 @@ public slots:
    void onFroniusPACValue(double val);
    void onEnergyValues(double total_power, double phase1, double phase2, double phase3, double energyPos, double energyNeg);
    void onHeatPumpPower(double hpPower);
+   void onHeatPumpPowerPulse();
    void onStoreEnergyValuesInDB();
 
 private:

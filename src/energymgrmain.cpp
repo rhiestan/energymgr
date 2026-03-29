@@ -93,10 +93,11 @@ int main(int argc, char **argv)
 
       MQReader mqReader;
       mqReader.connectToBroker(config.getMQTTUri(), config.getMQTTPort(),
-         config.getMQTTTopicHP(), config.getMQTTTopicEnergy());
+         config.getMQTTTopicHP(), config.getMQTTTopicHPPulse(), config.getMQTTTopicEnergy());
 
       QObject::connect(&mqReader, &MQReader::newEnergyValues, &energyMgr, &EnergyManager::onEnergyValues, Qt::ConnectionType::QueuedConnection);
       QObject::connect(&mqReader, &MQReader::newHeatPumpPower, &energyMgr, &EnergyManager::onHeatPumpPower, Qt::ConnectionType::QueuedConnection);
+      QObject::connect(&mqReader, &MQReader::newHeatPumpPowerPulse, &energyMgr, &EnergyManager::onHeatPumpPowerPulse, Qt::ConnectionType::QueuedConnection);
 
       FroniusReader froniusReader;
       froniusReader.runCommand(config);

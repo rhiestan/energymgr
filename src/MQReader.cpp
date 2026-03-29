@@ -16,9 +16,11 @@ MQReader::~MQReader()
 {
 }
 
-void MQReader::connectToBroker(const QString &url, int port, const QString &subscriptionTopicHP, const QString &subscriptionTopicEnergy)
+void MQReader::connectToBroker(const QString &url, int port, const QString &subscriptionTopicHP,
+   const QString &subscriptionTopicHPPulse, const QString &subscriptionTopicEnergy)
 {
    subscriptionTopicHP_ = subscriptionTopicHP;
+   subscriptionTopicHPPulse_ = subscriptionTopicHPPulse;
    subscriptionTopicEnergy_ = subscriptionTopicEnergy;
 
    pMqttClient_ = new QMqttClient(this);
@@ -75,6 +77,10 @@ void MQReader::slotMessageReceived(const QMqttMessage &msg)
          double hpPower = hpValueStr.toDouble(&isOk);
          if(isOk && hpPower > 0)
             emit newHeatPumpPower(hpPower);
+      }
+      else if(msg.topic().name() == subscriptionTopicHPPulse_)
+      {
+         emit newHeatPumpPowerPulse();
       }
    }
 }
