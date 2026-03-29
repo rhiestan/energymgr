@@ -27,14 +27,16 @@ void MQReader::connectToBroker(const QString &url, int port, const QString &subs
    pMqttClient_->setHostname(url);
    pMqttClient_->setPort(port);
 
-   connect(pMqttClient_, &QMqttClient::connected, this, [this, &subscriptionTopicHP, &subscriptionTopicEnergy]()
+   connect(pMqttClient_, &QMqttClient::connected, this, [this, &subscriptionTopicHP, &subscriptionTopicEnergy, &subscriptionTopicHPPulse]()
       {
          isConnected_ = true;
 
          QMqttSubscription *pSubscriptionHP = pMqttClient_->subscribe(subscriptionTopicHP, 2);
+         QMqttSubscription *pSubscriptionHPPulse = pMqttClient_->subscribe(subscriptionTopicHPPulse, 2);
          QMqttSubscription *pSubscriptionEnergy = pMqttClient_->subscribe(subscriptionTopicEnergy, 2);
 
          connect(pSubscriptionHP, &QMqttSubscription::messageReceived, this, &MQReader::slotMessageReceived);
+         connect(pSubscriptionHPPulse, &QMqttSubscription::messageReceived, this, &MQReader::slotMessageReceived);
          connect(pSubscriptionEnergy, &QMqttSubscription::messageReceived, this, &MQReader::slotMessageReceived);
       });
 
