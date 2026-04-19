@@ -279,7 +279,10 @@ void EnergyManager::writeValuesToOpenHAB(SendValueToOpenHAB &sendValueToOpenHAB)
    sendValueToOpenHAB.runCommand(configCopy_, QStringLiteral("powerIn") + valuesSuffix, QString::fromUtf8(valPowerIn.getValueStr()));
    sendValueToOpenHAB.runCommand(configCopy_, QStringLiteral("powerOut") + valuesSuffix, QString::fromUtf8(valPowerOut.getValueStr()));
    sendValueToOpenHAB.runCommand(configCopy_, QStringLiteral("powerProduced") + valuesSuffix, QString::fromUtf8(valPowerProduced.getValueStr()));
-   sendValueToOpenHAB.runCommand(configCopy_, QStringLiteral("powerConsumed") + valuesSuffix, QString::fromUtf8(valPowerConsumed.getValueStr()));
+   QString powerConsumedStr = QString::fromUtf8(valPowerConsumed.getValueStr());
+   if(valPowerConsumed.getValue() < 0)
+      powerConsumedStr = "0";  // Power consumed cannot be negative, if negative value is calculated due to measurement inaccuracies, set it to 0 for OpenHAB
+   sendValueToOpenHAB.runCommand(configCopy_, QStringLiteral("powerConsumed") + valuesSuffix, powerConsumedStr);
    sendValueToOpenHAB.runCommand(configCopy_, QStringLiteral("http_einfachSolar2_WP_powerIn"), QString::fromUtf8(valWP_powerIn.getValueStr()));
 #endif
 }
