@@ -9,7 +9,7 @@ struct EnergyValuePIMPL
    // Using Neumaier sum, c is the compensation term
    double val{0}, c{0};
 
-   std::chrono::time_point<std::chrono::high_resolution_clock> lastSetTimePoint;
+   std::chrono::time_point<std::chrono::steady_clock> lastSetTimePoint;
 };
 
 EnergyValue::EnergyValue()
@@ -60,7 +60,7 @@ void EnergyValue::incrementValue(double val)
 
 double EnergyValue::setValueWithTime(double val)
 {
-   auto timeNow = std::chrono::high_resolution_clock::now();
+   auto timeNow = std::chrono::steady_clock::now();
 
    setValue(val);
 
@@ -71,7 +71,7 @@ double EnergyValue::setValueWithTime(double val)
 
 double EnergyValue::incrementValueWithTime(double val)
 {
-   auto timeNow = std::chrono::high_resolution_clock::now();
+   auto timeNow = std::chrono::steady_clock::now();
 
    incrementValue(val);
 

@@ -1,7 +1,8 @@
 
 #include <iostream>
 #include <string>
-#include <iostream>
+#include <atomic>
+#include <csignal>
 
 #include <QCoreApplication>
 #include <QString>
@@ -20,6 +21,16 @@
 #include "EnergyManager.h"
 #include "EnergyValue.h"
 #include "SendValueToOpenHAB.h"
+
+// Set from the (async-signal-safe) signal handler on SIGTERM/SIGINT and polled
+// from the Qt event loop, so we can shut down gracefully without calling any
+// non-async-signal-safe Qt function directly from the handler.
+static std::atomic_bool g_shutdownRequested{false};
+
+static void requestShutdownHandler(int /*signal*/)
+{
+   g_shutdownRequested.store(true);
+}
 
 int main(int argc, char **argv)
 {
@@ -53,10 +64,16 @@ int main(int argc, char **argv)
    {
       qInfo() << "energymgr: starting up, version" << QCoreApplication::applicationVersion();
 
+      // Handle service stop (systemd sends SIGTERM) and Ctrl-C (SIGINT) so we can
+      // shut down cleanly: flush the latest values to the DB and close it.
+      std::signal(SIGTERM, requestShutdownHandler);
+      std::signal(SIGINT, requestShutdownHandler);
+
       Config config;
       config.loadFromFile(configFile);
       qInfo().noquote() << "energymgr: config loaded from" << configFile;
 
+#if 0
       {
          EnergyValue v{1.0};
          v.incrementValue(1.0);
@@ -71,7 +88,7 @@ int main(int argc, char **argv)
          a = v.getValue();
          s = v.getValueStr();
       }
-
+#endif
 
       ValueDBStorage::getInstance().openDatabase(config.getDBFileName());
       ValueDBStorage::getInstance().setErrorCallback([](const QString &errorMessage)
@@ -88,11 +105,6 @@ int main(int argc, char **argv)
          {
             sendValueToOpenHAB.runCommand(config, QStringLiteral("virtualPositiveSwitch"), positiveSwitch ? QStringLiteral("ON") : QStringLiteral("OFF"));
          });
-
-      /*ValueDBStorage::getInstance().storeValue("test", 5.12355);
-      double val = 0;
-      ValueDBStorage::getInstance().readValue("test", val);
-      ValueDBStorage::getInstance().readValue("test2", val);*/
 
       MQReader mqReader;
       mqReader.connectToBroker(config.getMQTTUri(), config.getMQTTPort(),
@@ -127,7 +139,7 @@ int main(int argc, char **argv)
             //if(counter >= 50)
             //   app.quit();
          });
-      tmr1.start(1000);
+      tmr1.start(5000);
 
       QObject::connect(&timerStoreValuesDB, &QTimer::timeout, &energyMgr, &EnergyManager::onStoreEnergyValuesInDB);
       timerStoreValuesDB.start(1000);
@@ -136,7 +148,7 @@ int main(int argc, char **argv)
          {
             froniusReader.runCommand(config);
          });
-      timerFronius.start(1000);
+      timerFronius.start(2000);
 
       QObject::connect(&timerSendValuesToOpenHAB, &QTimer::timeout, &energyMgr, [&energyMgr, &sendValueToOpenHAB]()
          {
@@ -159,7 +171,28 @@ int main(int argc, char **argv)
          });
       timerHeartbeat.start(30000);
 
-      return app.exec();
+      // Poll the shutdown flag set by the signal handler and quit the event loop
+      // gracefully when a SIGTERM/SIGINT has been received.
+      QTimer timerSignalCheck;
+      QObject::connect(&timerSignalCheck, &QTimer::timeout, &app, [&app]()
+         {
+            if(g_shutdownRequested.load())
+            {
+               qInfo() << "energymgr: shutdown signal received, stopping event loop";
+               app.quit();
+            }
+         });
+      timerSignalCheck.start(200);
+
+      const int exitCode = app.exec();
+
+      // Persist the latest values before the worker thread is stopped below.
+      qInfo() << "energymgr: storing final values before shutdown";
+      energyMgr.onStoreEnergyValuesInDB();
+
+      ValueDBStorage::getInstance().shutdown();
+      qInfo() << "energymgr: shutdown complete";
+      return exitCode;
    }
    catch(std::exception &e)
    {

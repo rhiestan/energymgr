@@ -42,6 +42,9 @@ void ReadInfluxDBHistoryValue::runCommand(const Config &config, const QString &v
 
 void ReadInfluxDBHistoryValue::commandFinished(int, QProcess::ExitStatus status, const QString &stdoutStr, const QString &stderrStr, const QString &payloadToFinished)
 {
+   if(!stderrStr.isEmpty())
+      qWarning().noquote() << "ReadInfluxDBHistoryValue: stderr for" << payloadToFinished << ":" << stderrStr;
+
    if (status == QProcess::NormalExit)
    {
       QByteArray responseData(stdoutStr.toUtf8());

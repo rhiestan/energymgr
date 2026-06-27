@@ -38,6 +38,9 @@ void OpenHABSystemStatusReader::runCommand(const Config &config)
 
 void OpenHABSystemStatusReader::commandFinished(int, QProcess::ExitStatus status, const QString &stdoutStr, const QString &stderrStr, const QString &payloadToFinished)
 {
+   if(!stderrStr.isEmpty())
+      qWarning().noquote() << "OpenHABSystemStatusReader: stderr:" << stderrStr;
+
    if (status == QProcess::NormalExit)
    {
       QByteArray responseData(stdoutStr.toUtf8());

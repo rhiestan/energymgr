@@ -32,6 +32,9 @@ void OpenHABValueReader::runCommand(const Config &config, const QString &valueNa
 
 void OpenHABValueReader::commandFinished(int, QProcess::ExitStatus status, const QString &stdoutStr, const QString &stderrStr, const QString &payloadToFinished)
 {
+   if(!stderrStr.isEmpty())
+      qWarning().noquote() << "OpenHABValueReader: stderr for" << payloadToFinished << ":" << stderrStr;
+
    if (status == QProcess::NormalExit)
    {
       bool isOk{true};

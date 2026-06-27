@@ -35,6 +35,9 @@ void FroniusReader::runCommand(const Config &config)
 
 void FroniusReader::commandFinished(int, QProcess::ExitStatus status, const QString &stdoutStr, const QString &stderrStr, const QString &payloadToFinished)
 {
+   if(!stderrStr.isEmpty())
+      qWarning().noquote() << "FroniusReader: stderr:" << stderrStr;
+
    if (status == QProcess::NormalExit) {
 
       QByteArray responseData(stdoutStr.toUtf8());

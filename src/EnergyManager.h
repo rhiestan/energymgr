@@ -41,7 +41,7 @@ private:
    EnergyValue valWP_powerIn;
    EnergyValue valWP_workIn;
 
-   std::chrono::high_resolution_clock::time_point lastTotalPowerPositive_;
+   std::chrono::steady_clock::time_point lastTotalPowerPositive_;
    double minIntervalPosSwitch_{0.5};
    bool positiveSwitch_{false};
    Config configCopy_;

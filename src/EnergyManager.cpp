@@ -135,18 +135,18 @@ void EnergyManager::initializeValues(const Config &config)
 
    bool timeout = false;
    const float timeoutTime = 2.0;  // seconds
-   std::chrono::high_resolution_clock::time_point startTime = std::chrono::high_resolution_clock::now();
+   std::chrono::steady_clock::time_point startTime = std::chrono::steady_clock::now();
 
    while(outstandingResults > 0 && !timeout)
    {
       eventLoop.processEvents();
-      std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
+      std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
       float elapsedSeconds = std::chrono::duration<float>(now - startTime).count();
       if(elapsedSeconds > timeoutTime)
          timeout = true;
    }
 
-   lastTotalPowerPositive_ = std::chrono::high_resolution_clock::now();
+   lastTotalPowerPositive_ = std::chrono::steady_clock::now();
    minIntervalPosSwitch_ = config.getMinIntervalPosSwitch();
 
    positiveSwitch_ = true;
@@ -169,7 +169,7 @@ void EnergyManager::onEnergyValues(double total_power, double phase1, double pha
    {
       // Power drawn from power grid
       newPositiveSwitch = false;
-      lastTotalPowerPositive_ = std::chrono::high_resolution_clock::now();
+      lastTotalPowerPositive_ = std::chrono::steady_clock::now();
       valPowerIn.setValue(total_power);
       valPowerOut.setValue(0);
       valWorkIn.incrementValue(energyPos);
@@ -184,7 +184,7 @@ void EnergyManager::onEnergyValues(double total_power, double phase1, double pha
       valPowerOut.setValue(std::abs(total_power));
       valWorkOut.incrementValue(energyNeg);
 
-      std::chrono::high_resolution_clock::time_point now = std::chrono::high_resolution_clock::now();
+      std::chrono::steady_clock::time_point now = std::chrono::steady_clock::now();
       float intervalSeconds = std::chrono::duration<float>(now - lastTotalPowerPositive_).count();
       if(intervalSeconds > minIntervalPosSwitch_)
          newPositiveSwitch = true;
