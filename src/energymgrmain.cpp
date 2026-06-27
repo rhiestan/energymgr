@@ -51,8 +51,11 @@ int main(int argc, char **argv)
 
    try
    {
+      qInfo() << "energymgr: starting up, version" << QCoreApplication::applicationVersion();
+
       Config config;
       config.loadFromFile(configFile);
+      qInfo().noquote() << "energymgr: config loaded from" << configFile;
 
       {
          EnergyValue v{1.0};
@@ -140,6 +143,21 @@ int main(int argc, char **argv)
             energyMgr.writeValuesToOpenHAB(sendValueToOpenHAB);
          });
       timerSendValuesToOpenHAB.start(10000);
+
+      // Periodic heartbeat: a single line that shows whether the event loop is still
+      // alive, whether MQTT messages are still arriving, and whether curl processes
+      // are piling up. This is the primary signal for diagnosing where the service
+      // gets stuck. If this line keeps appearing but "MQmsgAge" grows without bound,
+      // the MQTT input has died; if "curlInFlight" keeps climbing, curl is hanging.
+      QTimer timerHeartbeat;
+      QObject::connect(&timerHeartbeat, &QTimer::timeout, &app, [&mqReader]()
+         {
+            qInfo().noquote() << "HEARTBEAT: mqttState=" << mqReader.connectionStateString()
+               << "MQmsgCount=" << mqReader.messageCount()
+               << "MQmsgAge(s)=" << mqReader.secondsSinceLastMessage()
+               << "curlInFlight=" << CommandRunner::runningProcessCount();
+         });
+      timerHeartbeat.start(30000);
 
       return app.exec();
    }

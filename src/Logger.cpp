@@ -34,5 +34,8 @@ void Logger::logMessageHandler_nonstatic(const QtMsgType type, const QMessageLog
    if(logFile_.isOpen())
    {
       logFile_.write(qUtf8Printable(qFormatLogMessage(type, context, msg) + "\n"));
+      // Flush immediately so that no log lines are lost if the process later
+      // hangs or is killed - important for diagnosing where it gets stuck.
+      logFile_.flush();
    }
 }

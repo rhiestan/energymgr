@@ -24,6 +24,10 @@ void FroniusReader::runCommand(const Config &config)
       QStringLiteral("-X"),
       QStringLiteral("GET"),
       QStringLiteral("--no-progress-meter"),
+      QStringLiteral("--connect-timeout"),
+      QStringLiteral("5"),
+      QStringLiteral("--max-time"),
+      QStringLiteral("10"),
       config.getFroniusURL() };
 
    CommandRunner::runCommand(command);
